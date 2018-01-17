@@ -66,6 +66,13 @@ contract Colony is ColonyStorage {
     return token.mint(_wad);
   }
 
+  function mintTokensForColonyNetwork(uint _wad) public {
+    require(msg.sender == colonyNetworkAddress); // Only the colony Network can call this function
+    require(this == IColonyNetwork(colonyNetworkAddress).getColony("Common Colony")); // Function only valid on the Common Colony
+    token.mint(_wad);
+    token.transfer(colonyNetworkAddress, _wad);
+  }
+
   //TODO: Secure this function
   function addGlobalSkill(uint _parentSkillId) public
   returns (uint256)
@@ -74,7 +81,7 @@ contract Colony is ColonyStorage {
     return colonyNetwork.addSkill(_parentSkillId, true);
   }
 
-  function addDomain(uint256 _parentSkillId) public 
+  function addDomain(uint256 _parentSkillId) public
   localSkill(_parentSkillId)
   {
     // Note: remove that when we start allowing more domain hierarchy levels
@@ -86,7 +93,7 @@ contract Colony is ColonyStorage {
     // Setup new local skill
     IColonyNetwork colonyNetwork = IColonyNetwork(colonyNetworkAddress);
     uint256 newLocalSkill = colonyNetwork.addSkill(_parentSkillId, false);
-    
+
     // Add domain to local mapping
     domainCount += 1;
     potCount += 1;

@@ -31,6 +31,7 @@ contract IColony {
   function getToken() public view returns (address);
   function initialiseColony(address _network) public;
   function mintTokens(uint256 _wad) public;
+  function mintTokensForColonyNetwork(uint256 _wad) public;
   function addGlobalSkill(uint256 _parentSkillId) public returns (uint256);
   function addDomain(uint256 _parentSkillId) public;
   function getDomain(uint256 _id) public view returns (uint256, uint256);
@@ -46,7 +47,7 @@ contract IColony {
   function assignWorkRating(uint256 _id) public;
   function generateSecret(bytes32 _salt, uint256 _value) public pure returns (bytes32);
   function getTaskWorkRatings(uint256 _id) public view returns (uint256, uint256);
-  function getTaskWorkRatingSecret(uint256 _id, uint8 _role) public view returns (bytes32);  
+  function getTaskWorkRatingSecret(uint256 _id, uint8 _role) public view returns (bytes32);
   function setTaskRoleUser(uint256 _id, uint8 _role, address _user) public;
   function setTaskSkill(uint256 _id, uint256 _skillId) public;
   function setTaskDomain(uint256 _id, uint256 _domainId) public;
@@ -59,7 +60,7 @@ contract IColony {
   function getTaskRole(uint256 _id, uint8 _idx) public view returns (address, bool, uint8);
   function getTaskSkill(uint256 _id, uint256 _idx) public view returns (uint256);
   function getTaskDomain(uint256 _id, uint256 _idx) public view returns (uint256);
-  
+
   // ColonyFunding.sol
   function getFeeInverse() public pure returns (uint256);
   function getRewardInverse() public pure returns (uint256);
