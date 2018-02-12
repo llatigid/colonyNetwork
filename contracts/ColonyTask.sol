@@ -141,6 +141,17 @@ contract ColonyTask is ColonyStorage, DSMath {
     return taskCount;
   }
 
+  // TODO add relevant modifiers
+  function agreeTaskWork(uint256 _id, bytes32 _specificationHash, uint256 _dueDate, uint256 _skillId) public
+  self()
+  taskExists(_id)
+  taskNotFinalized(_id)
+  {
+    tasks[_id].specificationHash = _specificationHash;
+    tasks[_id].dueDate = _dueDate;
+    tasks[_id].skills[0] = _skillId;
+  }
+
   function proposeTaskChange(bytes _data, uint256 _value, uint8 _role) public returns (uint256 transactionId) {
     var (sig, taskId) = deconstructCall(_data);
 

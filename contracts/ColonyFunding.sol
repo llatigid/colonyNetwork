@@ -40,8 +40,8 @@ contract ColonyFunding is ColonyStorage, DSMath {
     return 100;
   }
 
+  // This has to be secured (maybe to manager only) and assigned worker has to agree?
   function setTaskPayout(uint256 _id, uint256 _role, address _token, uint256 _amount) public
-  self()
   taskExists(_id)
   taskNotFinalized(_id)
   {

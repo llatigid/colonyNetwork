@@ -44,8 +44,8 @@ contract("all", () => {
   let mintTokensCost;
 
   let makeTaskCost;
-  let setTaskDomainCost;
-  let setTaskSkillCost;
+  let setTaskPayoutCost;
+  // TODO: see if we need this let setTaskSkillCost;
   let setTaskRoleUserCost;
   let proposeTaskChangeCost;
   let approveTaskChangeCost;
@@ -126,6 +126,7 @@ contract("all", () => {
       makeTaskCost = tx.receipt.gasUsed;
       console.log("makeTask actual cost :", makeTaskCost);
 
+      /*
       // setTaskDomain
       estimate = await colony.setTaskDomain.estimateGas(1, 1);
       console.log("setTaskDomain estimate : ", estimate);
@@ -139,6 +140,23 @@ contract("all", () => {
       tx = await colony.setTaskSkill(1, 7, { gasPrice });
       setTaskSkillCost = tx.receipt.gasUsed;
       console.log("setTaskSkill actual cost :", setTaskSkillCost);
+*/
+      // moveFundsBetweenPots
+      estimate = await colony.moveFundsBetweenPots.estimateGas(1, 2, 200, tokenAddress);
+      console.log("moveFundsBetweenPots estimate : ", estimate);
+      tx = await colony.moveFundsBetweenPots(1, 2, 150, tokenAddress, { gasPrice });
+      moveFundsBetweenPotsCost = tx.receipt.gasUsed;
+      console.log("moveFundsBetweenPots actual cost :", moveFundsBetweenPotsCost);
+
+      // setTaskPayout
+      console.log("tokenAddress", tokenAddress);
+      estimate = await colony.setTaskPayout.estimateGas(1, WORKER_ROLE, tokenAddress, 100);
+      console.log("setTaskPayout estimate : ", estimate);
+      tx = await colony.setTaskPayout(1, WORKER_ROLE, WORKER, 100, { gasPrice });
+      setTaskPayoutCost = tx.receipt.gasUsed;
+      console.log("setTaskPayout actual cost :", setTaskPayoutCost);
+
+      await colony.setTaskPayout(1, MANAGER_ROLE, tokenAddress, 50);
 
       // setTaskRoleUser
       estimate = await colony.setTaskRoleUser.estimateGas(1, EVALUATOR_ROLE, EVALUATOR);
@@ -149,43 +167,22 @@ contract("all", () => {
 
       await colony.setTaskRoleUser(1, WORKER_ROLE, WORKER);
 
-      // Propose task change
-      let txData = await colony.contract.setTaskBrief.getData(1, SPECIFICATION_HASH);
+      // proposeTaskChange for agreeTaskWork
+      const dueDate = testHelper.currentBlockTime() + SECONDS_PER_DAY * 5;
+      const txData = await colony.contract.agreeTaskWork.getData(1, SPECIFICATION_HASH, dueDate, 7);
       estimate = await colony.proposeTaskChange.estimateGas(txData, 0, 0);
       console.log("proposeTaskChange estimate : ", estimate);
       tx = await colony.proposeTaskChange(txData, 0, 0, { gasPrice });
       proposeTaskChangeCost = tx.receipt.gasUsed;
       console.log("proposeTaskChange actual cost :", proposeTaskChangeCost);
+
       // Approve task change
-      let transactionId = await colony.getTransactionCount.call();
+      const transactionId = await colony.getTransactionCount.call();
       estimate = await colony.approveTaskChange.estimateGas(transactionId, WORKER_ROLE, { from: WORKER });
       console.log("approveTaskChange estimate : ", estimate);
       tx = await colony.approveTaskChange(transactionId, WORKER_ROLE, { from: WORKER, gasPrice });
       approveTaskChangeCost = tx.receipt.gasUsed;
       console.log("approveTaskChange actual cost :", approveTaskChangeCost);
-
-      const dueDate = testHelper.currentBlockTime() + SECONDS_PER_DAY * 5;
-      txData = await colony.contract.setTaskDueDate.getData(1, dueDate);
-      await colony.proposeTaskChange(txData, 0, MANAGER_ROLE);
-      transactionId = await colony.getTransactionCount.call();
-      await colony.approveTaskChange(transactionId, WORKER_ROLE, { from: WORKER });
-
-      // moveFundsBetweenPots
-      estimate = await colony.moveFundsBetweenPots.estimateGas(1, 2, 200, tokenAddress);
-      console.log("moveFundsBetweenPots estimate : ", estimate);
-      tx = await colony.moveFundsBetweenPots(1, 2, 150, tokenAddress, { gasPrice });
-      moveFundsBetweenPotsCost = tx.receipt.gasUsed;
-      console.log("moveFundsBetweenPots actual cost :", moveFundsBetweenPotsCost);
-
-      // setTaskPayout
-      txData = await colony.contract.setTaskPayout.getData(1, MANAGER_ROLE, tokenAddress, 50);
-      await colony.proposeTaskChange(txData, 0, MANAGER_ROLE);
-      transactionId = await colony.getTransactionCount.call();
-      await colony.approveTaskChange(transactionId, WORKER_ROLE, { from: WORKER });
-      txData = await colony.contract.setTaskPayout.getData(1, WORKER_ROLE, tokenAddress, 100);
-      await colony.proposeTaskChange(txData, 0, MANAGER_ROLE);
-      transactionId = await colony.getTransactionCount.call();
-      await colony.approveTaskChange(transactionId, WORKER_ROLE, { from: WORKER });
 
       // submitTaskDeliverable
       estimate = await colony.submitTaskDeliverable.estimateGas(1, DELIVERABLE_HASH, { from: WORKER });
@@ -223,10 +220,10 @@ contract("all", () => {
     it("average gas costs for a task lifecycle", async () => {
       const totalGasCost =
         makeTaskCost +
-        setTaskSkillCost +
+        setTaskPayoutCost * 2 +
         setTaskRoleUserCost * 2 +
-        proposeTaskChangeCost * 3 +
-        approveTaskChangeCost * 3 +
+        proposeTaskChangeCost +
+        approveTaskChangeCost +
         submitTaskDeliverableCost +
         submitTaskWorkRatingCost * 2 +
         revealTaskWorkRatingCost * 2 +

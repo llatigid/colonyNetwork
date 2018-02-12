@@ -49,6 +49,7 @@ contract Colony is ColonyStorage {
     IColony(this).setFunctionReviewers(0xda4db249, 0, 2); // setTaskBrief => manager, worker
     IColony(this).setFunctionReviewers(0xcae960fe, 0, 2); // setTaskDueDate => manager, worker
     IColony(this).setFunctionReviewers(0xbe2320af, 0, 2); // setTaskPayout => manager, worker
+    IColony(this).setFunctionReviewers(0x39dc1602, 0, 2); // agreeTaskWork => manager, worker
 
     // Initialise the root domain
     domainCount += 1;
