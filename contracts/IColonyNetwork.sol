@@ -23,6 +23,7 @@ pragma experimental "ABIEncoderV2";
 contract IColonyNetwork {
   event ColonyAdded(uint256 indexed id);
   event SkillAdded(uint256 skillId, uint256 parentSkillId);
+  event AuctionCreated(address auction, address token, uint256 quantity);
 
   function getColony(bytes32 key) public view returns (address);
   function getColonyCount() public view returns (uint256);
@@ -42,4 +43,5 @@ contract IColonyNetwork {
   function getReputationUpdateLogLength() public view returns (uint256);
   function getColonyVersionResolver(uint256 _version) public view returns (address);
   function getReputationUpdateLogEntry(uint256 _id) public view returns (address, int, uint256, address, uint256, uint256);
+  function startTokenAuction(address _token, uint256 _quantity) public;
 }
